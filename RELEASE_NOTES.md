@@ -20,6 +20,6 @@
 
 ## Windows 免安装版 / Portable Build
 
-下载 `狗狗测量.exe` 后双击运行。由于程序未进行商业代码签名，Windows SmartScreen 可能显示提示。
+下载 `DogMeasure-v1.0.0-Windows-x64.exe` 后双击运行。由于程序未进行商业代码签名，Windows SmartScreen 可能显示提示。
 
-Download `狗狗测量.exe` and run it directly. Windows SmartScreen may display a warning because this build is not commercially code-signed.
+Download `DogMeasure-v1.0.0-Windows-x64.exe` and run it directly. Windows SmartScreen may display a warning because this build is not commercially code-signed.

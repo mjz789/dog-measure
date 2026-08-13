@@ -30,9 +30,9 @@ An open-source 2D visual measurement application for UVC cameras and still image
 
 ## 下载免安装版 / Portable Windows Download
 
-在 GitHub 的 [Releases](../../releases) 页面下载 `狗狗测量.exe`。无需安装 Python，双击即可运行。
+在 GitHub 的 [Releases](../../releases) 页面下载 `DogMeasure-v1.0.0-Windows-x64.exe`。无需安装 Python，双击即可运行。
 
-Download `狗狗测量.exe` from [Releases](../../releases). It is a portable Windows build and does not require Python to be installed.
+Download `DogMeasure-v1.0.0-Windows-x64.exe` from [Releases](../../releases). It is a portable Windows build and does not require Python to be installed.
 
 > Windows SmartScreen may warn because the executable is not code-signed. Choose **More info / 更多信息** and verify the release source before running.
 
