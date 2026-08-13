@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from planevision.app import STYLESHEET
 from planevision.main_window import MainWindow
 from planevision.models import Measurement, MeasurementKind
-from planevision.vision import detect_40mm_ruler
+from planevision.vision import detect_metric_ruler
 
 
 def main() -> int:
@@ -27,7 +27,7 @@ def main() -> int:
     window = MainWindow()
     window.resize(1440, 860)
     window.canvas.set_frame(image, reset_view=True)
-    window.canvas.calibration = detect_40mm_ruler(image)
+    window.canvas.calibration = detect_metric_ruler(image)
     window.canvas.show_calibration_overlay = True
     window.calibration_overlay_button.setEnabled(True)
     window.calibration_overlay_button.setChecked(True)

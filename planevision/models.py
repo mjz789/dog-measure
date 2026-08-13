@@ -22,6 +22,7 @@ class Tool(str, Enum):
     ARC = "arc"
     THREE_POINT_CIRCLE = "three_point_circle"
     CIRCLE = "circle"
+    CIRCLE_CENTER_DISTANCE = "circle_center_distance"
     CONCENTRICITY = "concentricity"
     CIRCLE_ARRAY = "circle_array"
     ORIGIN = "origin"
@@ -38,6 +39,7 @@ class MeasurementKind(str, Enum):
     ARC = "arc"
     THREE_POINT_CIRCLE = "three_point_circle"
     CIRCLE = "circle"
+    CIRCLE_CENTER_DISTANCE = "circle_center_distance"
     CONCENTRICITY = "concentricity"
     CIRCLE_ARRAY = "circle_array"
 

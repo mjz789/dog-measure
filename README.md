@@ -6,13 +6,13 @@ An open-source 2D visual measurement application for UVC cameras and still image
 
 ![狗狗测量界面 / Dog Measure interface](docs/images/measurement-demo.png)
 
-**操作视频 / Operation Video:** [观看或下载 / Watch or download](https://github.com/mjz789/dog-measure/releases/download/v1.0.0/DogMeasure-v1.0.0-Operation-Video.mp4)
+**操作视频 / Operation Video:** [观看或下载 / Watch or download](../../releases/latest)
 
 ## 核心特点 / Highlights
 
 - **自动圆形测量**：点击圆附近即可自动拟合圆，直接给出直径和圆心坐标，无需手工寻找圆心。
 - **同心圆与同心度**：同一区域连续检测时自动排除已测圆，可识别相邻同心圆并计算圆心偏差。
-- **圆周阵列测量**：从测量列表选择三个圆，自动使用三个已识别圆心绘制阵列外接圆并给出直径；不需要人工点圆心。
+- **圆心距与圆周阵列**：在画面或测量列表中选择两个圆即可测量圆心距；选择三个圆可自动绘制阵列外接圆并给出直径，不需要人工点圆心。
 - **自动比例标定**：扫描画面中的 `10/20/30/40/50/100 mm` 常见公制标尺；原示例标定板还支持微米圆组联合校验。
 - **自动边缘吸附**：长度、点、角度和点到直线测量会在鼠标附近搜索清晰边缘或角点。
 - **完整二维工具**：长度、角度、点坐标、点线距、折线、面积、圆、三点圆、圆弧、同心度和圆形阵列。
@@ -22,7 +22,7 @@ An open-source 2D visual measurement application for UVC cameras and still image
 
 - **Automatic circle measurement**: click near a circle to fit it and obtain its diameter and center coordinates without manually locating the center.
 - **Concentric circles and concentricity**: repeated detection excludes previously measured circles, enabling nearby concentric rings and center-offset measurement.
-- **Circular array measurement**: select three measured circles and automatically draw the circumcircle through their detected centers. No manual center picking is required.
+- **Center distance and circular arrays**: select two measured circles on the canvas or in the result list to measure their center distance; select three to draw the circumcircle through their detected centers. No manual center picking is required.
 - **Automatic scale calibration**: scans for common `10/20/30/40/50/100 mm` metric rulers, with micron-circle cross-checking for the original calibration card.
 - **Automatic edge snapping**: length, point, angle, and point-to-line tools search for clear nearby edges or corners.
 - **Complete 2D toolset**: length, angle, point, point-to-line distance, polyline, area, circle, three-point circle, arc, concentricity, and circular array.
@@ -32,9 +32,9 @@ An open-source 2D visual measurement application for UVC cameras and still image
 
 ## 下载免安装版 / Portable Windows Download
 
-在 GitHub 的 [Releases](../../releases) 页面下载 `DogMeasure-v1.0.0-Windows-x64.exe`。无需安装 Python，双击即可运行。
+在 GitHub 项目页面右侧的 **Releases** 区域，或直接进入 [Releases 下载页面](../../releases)，下载最新版 Windows x64 EXE。Windows 系统无需安装，下载后双击即可直接运行，也不需要安装 Python。
 
-Download `DogMeasure-v1.0.0-Windows-x64.exe` from [Releases](../../releases). It is a portable Windows build and does not require Python to be installed.
+Use the **Releases** section on the right side of the GitHub project page, or open the [Releases download page](../../releases), to download the latest Windows x64 EXE. It is portable: download it and double-click to run on Windows, with no installation or Python runtime required.
 
 > Windows SmartScreen may warn because the executable is not code-signed. Choose **More info / 更多信息** and verify the release source before running.
 
@@ -43,14 +43,14 @@ Download `DogMeasure-v1.0.0-Windows-x64.exe` from [Releases](../../releases). It
 1. 打开图片，或选择摄像头与分辨率后连接 UVC 摄像头。
 2. 点击“自动识别画面标尺”；识别不到时使用“两点划线”并输入实际长度。
 3. 使用“检测圆形”，滚轮调整红色搜索环后在目标圆附近点击。
-4. 测量同心度时依次选择两个已检测圆；测量圆周阵列时在列表中选择三个圆再自动绘制。
+4. 可直接进入圆心距或圆阵列工具逐个点击；也可在选择工具下按住 `Ctrl`，从画面或列表选择两个/三个圆后点击对应按钮。
 5. 按 `Esc` 回到选择工具，拖动黄色控制点或标签进行调整。
 6. 按 `Ctrl+S` 一键导出截图和 CSV。
 
 1. Open an image, or select a camera and resolution and connect a UVC camera.
 2. Run automatic ruler calibration; if no reliable ruler is found, use two-point manual calibration and enter the real length.
 3. Select circle detection, resize the red search ring with the mouse wheel, and click near the target circle.
-4. Select two detected circles for concentricity, or select three circles in the result list to draw their circular array automatically.
+4. Use the center-distance or array tool and click detected circles directly, or hold `Ctrl` in Select mode to choose two/three circles on the canvas or in the result list, then click the matching action.
 5. Press `Esc` to return to Select, then drag yellow handles or labels to refine annotations.
 6. Press `Ctrl+S` to export the annotated image and CSV together.
 

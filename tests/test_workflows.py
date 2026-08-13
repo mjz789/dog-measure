@@ -2,6 +2,8 @@ import math
 import re
 
 import numpy as np
+from PySide6.QtCore import Qt
+from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
 
 from planevision.main_window import MainWindow
@@ -72,6 +74,91 @@ def test_circle_array_uses_three_detected_centers() -> None:
     assert result.kind == MeasurementKind.CIRCLE_ARRAY
     assert math.isclose(result.value, 200.0, abs_tol=1e-6)
     assert result.points[0] == (400.0, 300.0)
+    window.close()
+
+
+def test_circle_center_distance_uses_two_detected_centers() -> None:
+    window = _window()
+    first = _circle((100, 100), 20)
+    second = _circle((400, 500), 30)
+    window.canvas.measurements.extend([first, second])
+    window._refresh_results()
+    window._set_tool(Tool.CIRCLE_CENTER_DISTANCE)
+    window._select_circle_for_composite_measurement(first.points[0], Tool.CIRCLE_CENTER_DISTANCE)
+    assert window.canvas.selected_ids == {first.id}
+    assert {index.row() for index in window.results.selectionModel().selectedRows()} == {0}
+    window._select_circle_for_composite_measurement(second.points[0], Tool.CIRCLE_CENTER_DISTANCE)
+    result = window.canvas.measurements[-1]
+    assert result.kind == MeasurementKind.CIRCLE_CENTER_DISTANCE
+    assert math.isclose(result.value, 500.0)
+    assert result.metadata == {"circle_1": first.id, "circle_2": second.id}
+    window.close()
+
+
+def test_center_distance_can_be_measured_from_two_selected_rows() -> None:
+    from PySide6.QtCore import QItemSelectionModel
+
+    window = _window()
+    circles = [_circle((100, 100), 20), _circle((160, 180), 20)]
+    window.canvas.measurements.extend(circles)
+    window._refresh_results()
+    for row in range(2):
+        window.results.selectionModel().select(
+            window.results.model().index(row, 0),
+            QItemSelectionModel.SelectionFlag.Select | QItemSelectionModel.SelectionFlag.Rows,
+        )
+    assert window.measure_center_distance_button.isEnabled()
+    assert window.canvas.selected_ids == {circle.id for circle in circles}
+    window.measure_center_distance_from_selection()
+    assert window.canvas.measurements[-1].kind == MeasurementKind.CIRCLE_CENTER_DISTANCE
+    assert math.isclose(window.canvas.measurements[-1].value, 100.0)
+    window.close()
+
+
+def test_canvas_circle_multi_selection_highlights_matching_rows() -> None:
+    window = _window()
+    circles = [_circle((100, 100), 20), _circle((200, 100), 20), _circle((150, 200), 20)]
+    window.canvas.measurements.extend(circles)
+    window._refresh_results()
+    window.canvas.selected_ids = {circle.id for circle in circles}
+    window.canvas.selected_id = None
+    window._canvas_selection_changed(circles[-1])
+    selected_rows = {index.row() for index in window.results.selectionModel().selectedRows()}
+    assert selected_rows == {0, 1, 2}
+    assert window.draw_array_button.isEnabled()
+    window.draw_array_from_selection()
+    assert window.canvas.measurements[-1].kind == MeasurementKind.CIRCLE_ARRAY
+    window.close()
+
+
+def test_ctrl_clicking_circles_on_canvas_syncs_multi_selection_to_rows() -> None:
+    window = _window()
+    circles = [_circle((200, 200), 30), _circle((400, 200), 30), _circle((300, 400), 30)]
+    window.canvas.measurements.extend(circles)
+    window._refresh_results()
+    window.resize(1200, 800)
+    window.show()
+    QApplication.processEvents()
+    for circle in circles:
+        point = window.canvas.image_to_widget(circle.points[0]).toPoint()
+        QTest.mouseClick(window.canvas, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.ControlModifier, point)
+    assert window.canvas.selected_ids == {circle.id for circle in circles}
+    assert {index.row() for index in window.results.selectionModel().selectedRows()} == {0, 1, 2}
+    assert window.draw_array_button.isEnabled()
+    window.close()
+
+
+def test_center_distance_recalculates_when_source_circle_moves() -> None:
+    window = _window()
+    first = _circle((100, 100), 20)
+    second = _circle((200, 100), 20)
+    window.canvas.measurements.extend([first, second])
+    window._create_circle_center_distance([first, second])
+    result = window.canvas.measurements[-1]
+    first.points[0] = (150, 100)
+    window._measurement_geometry_edited(first)
+    assert result.points == [(150, 100), (200, 100)]
+    assert math.isclose(result.value, 50.0)
     window.close()
 
 

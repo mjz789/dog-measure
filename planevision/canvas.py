@@ -28,6 +28,7 @@ ACCENT_LIGHT = QColor("#61d4bd")
 ANGLE_COLOR = QColor("#f0a44b")
 CIRCLE_COLOR = QColor("#4aa3df")
 CONCENTRICITY_COLOR = QColor("#e56b75")
+CENTER_DISTANCE_COLOR = QColor("#24c7b1")
 ARRAY_COLOR = QColor("#b98adb")
 POINT_COLOR = QColor("#ef7fa0")
 POLYLINE_COLOR = QColor("#55c2a3")
@@ -269,6 +270,8 @@ class ImageCanvas(QWidget):
             }:
                 radius = float(item.metadata.get("radius_px", 0.0))
                 distances.append(abs(float(np.linalg.norm(p - points[0])) - radius))
+                if item.kind == MeasurementKind.CIRCLE:
+                    distances.append(float(np.linalg.norm(p - points[0])))
             elif item.kind == MeasurementKind.ARC and len(points) >= 3:
                 try:
                     center, radius, _, _ = arc_geometry(item.points[0], item.points[1], item.points[2])
@@ -301,6 +304,7 @@ class ImageCanvas(QWidget):
             MeasurementKind.ARC: ARC_COLOR,
             MeasurementKind.THREE_POINT_CIRCLE: CIRCLE_COLOR,
             MeasurementKind.CIRCLE: CIRCLE_COLOR,
+            MeasurementKind.CIRCLE_CENTER_DISTANCE: CENTER_DISTANCE_COLOR,
             MeasurementKind.CONCENTRICITY: CONCENTRICITY_COLOR,
             MeasurementKind.CIRCLE_ARRAY: ARRAY_COLOR,
         }
@@ -322,7 +326,7 @@ class ImageCanvas(QWidget):
         if not points:
             return
 
-        if item.kind == MeasurementKind.LENGTH:
+        if item.kind in {MeasurementKind.LENGTH, MeasurementKind.CIRCLE_CENTER_DISTANCE}:
             if len(points) < 2:
                 return
             painter.drawLine(points[0], points[1])
@@ -538,6 +542,7 @@ class ImageCanvas(QWidget):
             Tool.AREA,
             Tool.ARC,
             Tool.THREE_POINT_CIRCLE,
+            Tool.CIRCLE_CENTER_DISTANCE,
             Tool.CONCENTRICITY,
             Tool.CIRCLE_ARRAY,
             Tool.MANUAL_CALIBRATION,
@@ -595,7 +600,8 @@ class ImageCanvas(QWidget):
                 self.finishMeasurementRequested.emit()
                 event.accept()
             return
-        if self.tool == Tool.SELECT:
+        additive = bool(event.modifiers() & Qt.KeyboardModifier.ControlModifier)
+        if self.tool == Tool.SELECT and not additive:
             label_item = self._label_at_widget_point(event.position())
             if label_item is not None:
                 bounds = self._label_rects[label_item.id]
@@ -611,24 +617,35 @@ class ImageCanvas(QWidget):
         if image_point is None:
             return
         if self.tool == Tool.SELECT:
-            calibration_handle = self._calibration_handle_hit(image_point)
-            if calibration_handle is not None:
-                self._drag_calibration_handle = calibration_handle
-                self.setCursor(Qt.CursorShape.SizeAllCursor)
-                self.update()
-                return
-            handle = self._edit_handle_hit(image_point)
-            if handle is not None:
-                self._drag_measurement, self._drag_handle = handle
-                self.selected_id = self._drag_measurement.id
-                self.selected_ids = {self._drag_measurement.id}
-                self.measurementSelected.emit(self._drag_measurement)
-                self.setCursor(Qt.CursorShape.SizeAllCursor)
-                self.update()
-                return
+            if not additive:
+                calibration_handle = self._calibration_handle_hit(image_point)
+                if calibration_handle is not None:
+                    self._drag_calibration_handle = calibration_handle
+                    self.setCursor(Qt.CursorShape.SizeAllCursor)
+                    self.update()
+                    return
+                handle = self._edit_handle_hit(image_point)
+                if handle is not None:
+                    self._drag_measurement, self._drag_handle = handle
+                    self.selected_id = self._drag_measurement.id
+                    self.selected_ids = {self._drag_measurement.id}
+                    self.measurementSelected.emit(self._drag_measurement)
+                    self.setCursor(Qt.CursorShape.SizeAllCursor)
+                    self.update()
+                    return
             selected = self._measurement_hit(image_point)
-            self.selected_id = selected.id if selected else None
-            self.measurementSelected.emit(selected)
+            if selected is None:
+                if not additive:
+                    self.selected_ids.clear()
+            elif additive:
+                if selected.id in self.selected_ids:
+                    self.selected_ids.remove(selected.id)
+                else:
+                    self.selected_ids.add(selected.id)
+            else:
+                self.selected_ids = {selected.id}
+            self.selected_id = next(iter(self.selected_ids)) if len(self.selected_ids) == 1 else None
+            self.measurementSelected.emit(selected if selected and selected.id in self.selected_ids else None)
             self.update()
             return
         self.imageClicked.emit(*image_point)
@@ -771,6 +788,8 @@ class ImageCanvas(QWidget):
         elif item.kind == MeasurementKind.POINT_LINE_DISTANCE and len(item.points) >= 4:
             handles = [("point", index, item.points[index]) for index in (0, 2, 3)]
         elif item.kind == MeasurementKind.CONCENTRICITY:
+            handles = []
+        elif item.kind == MeasurementKind.CIRCLE_CENTER_DISTANCE:
             handles = []
         return handles
 

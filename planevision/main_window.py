@@ -227,7 +227,9 @@ class MainWindow(QMainWindow):
             (Tool.AREA, "多边形面积 (G)"),
             (Tool.ARC, "三点圆弧 (B)"),
             (Tool.THREE_POINT_CIRCLE, "三点圆 (Q)"),
+            (Tool.CIRCLE_CENTER_DISTANCE, "两圆心距 (E)"),
             (Tool.CONCENTRICITY, "两圆同心度 (T)"),
+            (Tool.CIRCLE_ARRAY, "三圆阵列 (R)"),
             (Tool.ORIGIN, "设置原点 (O)"),
         ]
         self.side_tool_buttons: dict[Tool, QPushButton] = {}
@@ -239,7 +241,9 @@ class MainWindow(QMainWindow):
             tool_grid.addWidget(button, index // 2, index % 2)
         side_layout.addLayout(tool_grid)
         self.circle_button = self.side_tool_buttons[Tool.CIRCLE]
+        self.center_distance_tool_button = self.side_tool_buttons[Tool.CIRCLE_CENTER_DISTANCE]
         self.concentricity_button = self.side_tool_buttons[Tool.CONCENTRICITY]
+        self.circle_array_button = self.side_tool_buttons[Tool.CIRCLE_ARRAY]
 
         self._add_separator(side_layout)
         parameter_heading = QLabel("工具参数")
@@ -335,16 +339,15 @@ class MainWindow(QMainWindow):
         side_layout.addWidget(self.tool_parameters)
 
         self._add_separator(side_layout)
-        array_heading = QLabel("圆心阵列")
+        array_heading = QLabel("圆组合快捷测量")
         array_heading.setObjectName("sectionHeading")
         side_layout.addWidget(array_heading)
         circle_measure_row = QHBoxLayout()
-        self.circle_array_button = QPushButton("点选三圆心")
-        self.circle_array_button.setCheckable(True)
-        self.side_tool_buttons[Tool.CIRCLE_ARRAY] = self.circle_array_button
-        self.draw_array_button = QPushButton("选中三圆自动绘制")
+        self.measure_center_distance_button = QPushButton("选中两圆测圆心距")
+        self.measure_center_distance_button.setEnabled(False)
+        self.draw_array_button = QPushButton("选中三圆绘制阵列")
         self.draw_array_button.setEnabled(False)
-        circle_measure_row.addWidget(self.circle_array_button)
+        circle_measure_row.addWidget(self.measure_center_distance_button)
         circle_measure_row.addWidget(self.draw_array_button)
         side_layout.addLayout(circle_measure_row)
 
@@ -423,6 +426,7 @@ class MainWindow(QMainWindow):
             (Tool.ARC, "圆弧", "B"),
             (Tool.THREE_POINT_CIRCLE, "三点圆", "Q"),
             (Tool.CIRCLE, "圆形", "C"),
+            (Tool.CIRCLE_CENTER_DISTANCE, "圆心距", "E"),
             (Tool.CONCENTRICITY, "同心度", "T"),
             (Tool.CIRCLE_ARRAY, "圆形阵列", "R"),
             (Tool.ORIGIN, "设置原点", "O"),
@@ -499,7 +503,7 @@ class MainWindow(QMainWindow):
         self.manual_calibration_button.clicked.connect(lambda: self._set_tool(Tool.MANUAL_CALIBRATION))
         self.clear_calibration_button.clicked.connect(self.clear_calibration)
         self.calibration_overlay_button.toggled.connect(self._toggle_calibration_overlay)
-        self.circle_array_button.clicked.connect(lambda: self._set_tool(Tool.CIRCLE_ARRAY))
+        self.measure_center_distance_button.clicked.connect(self.measure_center_distance_from_selection)
         self.draw_array_button.clicked.connect(self.draw_array_from_selection)
         self.circle_radius.valueChanged.connect(self._circle_radius_changed)
         self.snap_radius.valueChanged.connect(self._snap_radius_changed)
@@ -547,6 +551,7 @@ class MainWindow(QMainWindow):
             Tool.ARC,
             Tool.THREE_POINT_CIRCLE,
             Tool.CIRCLE,
+            Tool.CIRCLE_CENTER_DISTANCE,
             Tool.CONCENTRICITY,
             Tool.CIRCLE_ARRAY,
             Tool.MANUAL_CALIBRATION,
@@ -585,8 +590,9 @@ class MainWindow(QMainWindow):
             Tool.ARC: "三点圆弧：依次点击起点、弧上点和终点，完成后可继续测量；Esc 退出",
             Tool.THREE_POINT_CIRCLE: "三点圆：依次点击圆周上的三个点，自动拟合完整圆；Esc 退出",
             Tool.CIRCLE: "圆形识别：滚轮调整红环，使红线贴近目标圆周，然后单击",
+            Tool.CIRCLE_CENTER_DISTANCE: "圆心距：依次点击两个已检测圆的圆心或圆周；也可在画面或列表选中两个圆后点快捷按钮",
             Tool.CONCENTRICITY: "同心度：依次点击两个已检测圆的彩色圆周",
-            Tool.CIRCLE_ARRAY: "圆形阵列：依次点击 3 个已检测圆的圆心，或在右侧列表选择 3 个圆后绘制",
+            Tool.CIRCLE_ARRAY: "圆形阵列：依次点击 3 个已检测圆的圆心或圆周；也可在画面或列表选中 3 个圆后绘制",
             Tool.ORIGIN: "原点工具：单击图像设置坐标原点",
             Tool.MANUAL_CALIBRATION: "两点划线标定：设置右侧实际长度，再依次点击线段两端",
         }
@@ -802,7 +808,7 @@ class MainWindow(QMainWindow):
         if tool == Tool.CIRCLE:
             self._detect_circle(point)
             return
-        if tool == Tool.CONCENTRICITY:
+        if tool in {Tool.CIRCLE_CENTER_DISTANCE, Tool.CONCENTRICITY}:
             self._select_circle_for_composite_measurement(point, tool)
             return
         if tool == Tool.CIRCLE_ARRAY:
@@ -1216,7 +1222,10 @@ class MainWindow(QMainWindow):
         if use_edge:
             metric = lambda item: abs(distance(point, item.points[0]) - float(item.metadata["radius_px"]))
         else:
-            metric = lambda item: distance(point, item.points[0])
+            metric = lambda item: min(
+                distance(point, item.points[0]),
+                abs(distance(point, item.points[0]) - float(item.metadata["radius_px"])),
+            )
         ranked = sorted(circles, key=metric)
         best = ranked[0]
         return best if metric(best) <= tolerance else None
@@ -1240,7 +1249,10 @@ class MainWindow(QMainWindow):
             return
         self._pending_circle_ids.append(selected.id)
         self.canvas.pending_points.append(selected.points[0])
-        required = 2 if tool == Tool.CONCENTRICITY else 3
+        self.canvas.selected_ids = set(self._pending_circle_ids)
+        self.canvas.selected_id = selected.id if len(self._pending_circle_ids) == 1 else None
+        self._select_rows_by_ids(self.canvas.selected_ids)
+        required = 3 if tool == Tool.CIRCLE_ARRAY else 2
         if len(self._pending_circle_ids) < required:
             remaining = required - len(self._pending_circle_ids)
             self.status_message.setText(f"已选择 {len(self._pending_circle_ids)} 个圆，还需选择 {remaining} 个")
@@ -1252,19 +1264,21 @@ class MainWindow(QMainWindow):
         ]
         self._pending_circle_ids.clear()
         self.canvas.pending_points.clear()
-        if tool == Tool.CONCENTRICITY:
+        if tool in {Tool.CIRCLE_CENTER_DISTANCE, Tool.CONCENTRICITY}:
             first, second = selected_circles
             value = distance(first.points[0], second.points[0]) * self.canvas.calibration.mm_per_pixel
+            is_concentricity = tool == Tool.CONCENTRICITY
             measurement = Measurement(
-                MeasurementKind.CONCENTRICITY,
+                MeasurementKind.CONCENTRICITY if is_concentricity else MeasurementKind.CIRCLE_CENTER_DISTANCE,
                 [first.points[0], second.points[0]],
                 value,
                 "mm",
-                label=f"同心度 {value:.3f} mm",
+                label=f"{'同心度' if is_concentricity else '圆心距'} {value:.3f} mm",
                 metadata={"circle_1": first.id, "circle_2": second.id},
             )
             self._add_measurement(measurement)
-            self.status_message.setText(f"两个圆的圆心距离（同心度）为 {value:.3f} mm；可继续测量，Esc 退出")
+            result_name = "两个圆的圆心距离（同心度）" if is_concentricity else "两个圆的圆心距离"
+            self.status_message.setText(f"{result_name}为 {value:.3f} mm；可继续测量，Esc 退出")
             return
 
         centers = [circle.points[0] for circle in selected_circles]
@@ -1318,6 +1332,7 @@ class MainWindow(QMainWindow):
             MeasurementKind.ARC: "圆弧",
             MeasurementKind.THREE_POINT_CIRCLE: "三点圆",
             MeasurementKind.CIRCLE: "圆形",
+            MeasurementKind.CIRCLE_CENTER_DISTANCE: "圆心距",
             MeasurementKind.CONCENTRICITY: "同心度",
             MeasurementKind.CIRCLE_ARRAY: "圆形阵列",
         }
@@ -1370,15 +1385,26 @@ class MainWindow(QMainWindow):
         }
         self.canvas.selected_ids = selected_ids
         self.canvas.selected_id = next(iter(selected_ids)) if len(selected_ids) == 1 else None
+        self._update_composite_measurement_buttons(selected_ids)
+        self.canvas.update()
+
+    def _update_composite_measurement_buttons(self, selected_ids: set[str] | None = None) -> None:
+        selected_ids = set(self.canvas.selected_ids if selected_ids is None else selected_ids)
         selected_circles = [
             item for item in self.canvas.measurements if item.id in selected_ids and item.kind == MeasurementKind.CIRCLE
         ]
+        self.measure_center_distance_button.setEnabled(len(selected_ids) == 2 and len(selected_circles) == 2)
         self.draw_array_button.setEnabled(len(selected_ids) == 3 and len(selected_circles) == 3)
-        self.canvas.update()
 
     def _canvas_selection_changed(self, measurement: Measurement | None) -> None:
-        self.canvas.selected_ids = {measurement.id} if measurement else set()
-        self._refresh_results(measurement.id if measurement else None)
+        selected_ids = set(self.canvas.selected_ids)
+        if measurement is not None and measurement.id not in selected_ids:
+            selected_ids = {measurement.id}
+            self.canvas.selected_ids = selected_ids
+            self.canvas.selected_id = measurement.id
+        self._select_rows_by_ids(selected_ids)
+        self._update_composite_measurement_buttons(selected_ids)
+        self.canvas.update()
 
     def _measurement_geometry_changed(self, measurement: Measurement) -> None:
         self._recalculate_measurement(measurement)
@@ -1478,9 +1504,10 @@ class MainWindow(QMainWindow):
             item.label = f"{prefix} {item.value:.3f} mm"
             item.metadata["center_x_mm"] = (item.points[0][0] - ox) * scale
             item.metadata["center_y_mm"] = (item.points[0][1] - oy) * scale
-        elif item.kind == MeasurementKind.CONCENTRICITY and len(item.points) >= 2:
+        elif item.kind in {MeasurementKind.CIRCLE_CENTER_DISTANCE, MeasurementKind.CONCENTRICITY} and len(item.points) >= 2:
             item.value = distance(item.points[0], item.points[1]) * scale
-            item.label = f"同心度 {item.value:.3f} mm"
+            prefix = "同心度" if item.kind == MeasurementKind.CONCENTRICITY else "圆心距"
+            item.label = f"{prefix} {item.value:.3f} mm"
 
     def _recalculate_dependents(self, changed_id: str) -> None:
         circles = {item.id: item for item in self.canvas.measurements if item.kind == MeasurementKind.CIRCLE}
@@ -1490,14 +1517,15 @@ class MainWindow(QMainWindow):
             referenced = {str(value) for key, value in item.metadata.items() if key.startswith("circle_")}
             if changed_id not in referenced:
                 continue
-            if item.kind == MeasurementKind.CONCENTRICITY:
+            if item.kind in {MeasurementKind.CIRCLE_CENTER_DISTANCE, MeasurementKind.CONCENTRICITY}:
                 first = circles.get(str(item.metadata.get("circle_1", "")))
                 second = circles.get(str(item.metadata.get("circle_2", "")))
                 if first is None or second is None:
                     continue
                 item.points = [first.points[0], second.points[0]]
                 item.value = distance(item.points[0], item.points[1]) * scale
-                item.label = f"同心度 {item.value:.3f} mm"
+                prefix = "同心度" if item.kind == MeasurementKind.CONCENTRICITY else "圆心距"
+                item.label = f"{prefix} {item.value:.3f} mm"
             elif item.kind == MeasurementKind.CIRCLE_ARRAY:
                 selected = [circles.get(str(item.metadata.get(f"circle_{index}", ""))) for index in range(1, 4)]
                 if any(circle is None for circle in selected):
@@ -1514,19 +1542,54 @@ class MainWindow(QMainWindow):
                 item.value = 2.0 * radius * scale
                 item.label = f"阵列 Ø {item.value:.3f} mm"
 
+    def _selected_circles(self) -> list[Measurement]:
+        selected_ids = set(self.canvas.selected_ids)
+        for index in self.results.selectionModel().selectedRows():
+            cell = self.results.item(index.row(), 0)
+            if cell is not None:
+                selected_ids.add(str(cell.data(Qt.ItemDataRole.UserRole)))
+        return [
+            item
+            for item in self.canvas.measurements
+            if item.id in selected_ids and item.kind == MeasurementKind.CIRCLE
+        ]
+
+    def measure_center_distance_from_selection(self) -> None:
+        selected = self._selected_circles()
+        if len(selected) != 2:
+            QMessageBox.information(
+                self,
+                "请选择两个圆",
+                "请在画面中按住 Ctrl 点击，或在测量列表中按住 Ctrl 选择恰好两个“圆形”结果。",
+            )
+            return
+        self._create_circle_center_distance(selected)
+
+    def _create_circle_center_distance(self, selected_circles: list[Measurement]) -> None:
+        if self.canvas.calibration is None:
+            self._need_calibration_message()
+            return
+        first, second = selected_circles
+        value = distance(first.points[0], second.points[0]) * self.canvas.calibration.mm_per_pixel
+        measurement = Measurement(
+            MeasurementKind.CIRCLE_CENTER_DISTANCE,
+            [first.points[0], second.points[0]],
+            value,
+            "mm",
+            label=f"圆心距 {value:.3f} mm",
+            metadata={"circle_1": first.id, "circle_2": second.id},
+        )
+        self._add_measurement(measurement)
+        self.status_message.setText(f"两个圆的圆心距离为 {value:.3f} mm")
+
     def draw_array_from_selection(self) -> None:
-        rows = sorted(index.row() for index in self.results.selectionModel().selectedRows())
-        selected = []
-        for row in rows:
-            cell = self.results.item(row, 0)
-            if cell is None:
-                continue
-            measurement_id = str(cell.data(Qt.ItemDataRole.UserRole))
-            item = next((candidate for candidate in self.canvas.measurements if candidate.id == measurement_id), None)
-            if item is not None and item.kind == MeasurementKind.CIRCLE:
-                selected.append(item)
+        selected = self._selected_circles()
         if len(selected) != 3:
-            QMessageBox.information(self, "请选择三个圆", "请在测量列表中按住 Ctrl 选择恰好三个“圆形”结果。")
+            QMessageBox.information(
+                self,
+                "请选择三个圆",
+                "请在画面中按住 Ctrl 点击，或在测量列表中按住 Ctrl 选择恰好三个“圆形”结果。",
+            )
             return
         self._create_circle_array(selected)
 
@@ -1588,6 +1651,7 @@ class MainWindow(QMainWindow):
             self._redo_stack.extend(removed)
         self.canvas.selected_id = None
         self.canvas.selected_ids.clear()
+        self._update_composite_measurement_buttons()
         self._refresh_results()
         self.canvas.update()
         if dependent_ids:
@@ -1602,6 +1666,7 @@ class MainWindow(QMainWindow):
         self.canvas.measurements.clear()
         self.canvas.selected_id = None
         self.canvas.selected_ids.clear()
+        self.measure_center_distance_button.setEnabled(False)
         self.draw_array_button.setEnabled(False)
         self._refresh_results()
         self.canvas.update()
@@ -1712,6 +1777,7 @@ class MainWindow(QMainWindow):
         self.canvas.selected_id = pasted[0].id if len(pasted) == 1 else None
         self._refresh_results()
         self._select_rows_by_ids(self.canvas.selected_ids)
+        self._update_composite_measurement_buttons()
         self.status_message.setText(f"已粘贴 {len(pasted)} 项测量")
         self.canvas.update()
 
@@ -1722,6 +1788,7 @@ class MainWindow(QMainWindow):
         self.canvas.selected_ids = measurement_ids
         self.canvas.selected_id = None
         self._select_rows_by_ids(measurement_ids)
+        self._update_composite_measurement_buttons()
         self.canvas.update()
 
     def _select_rows_by_ids(self, measurement_ids: set[str]) -> None:
