@@ -6,6 +6,8 @@ An open-source 2D visual measurement application for UVC cameras and still image
 
 ![狗狗测量界面 / Dog Measure interface](docs/images/measurement-demo.png)
 
+**操作视频 / Operation Video:** [观看或下载 / Watch or download](https://github.com/mjz789/dog-measure/releases/download/v1.0.0/DogMeasure-v1.0.0-Operation-Video.mp4)
+
 ## 核心特点 / Highlights
 
 - **自动圆形测量**：点击圆附近即可自动拟合圆，直接给出直径和圆心坐标，无需手工寻找圆心。

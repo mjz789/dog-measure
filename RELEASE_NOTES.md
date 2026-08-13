@@ -2,6 +2,8 @@
 
 首个公开版本。/ First public release.
 
+**操作视频 / Operation Video:** `DogMeasure-v1.0.0-Operation-Video.mp4`
+
 ## 主要功能 / Highlights
 
 - 自动识别圆并给出直径与圆心，无需人工寻找圆心。
