@@ -1,0 +1,18 @@
+[project]
+name = "planevision"
+version = "0.1.0"
+description = "UVC camera planar visual measurement desktop application"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=2.0,<3",
+    "opencv-python>=4.10,<5",
+    "PySide6>=6.8,<7",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<9"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+

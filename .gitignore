@@ -1,0 +1,11 @@
+.venv/
+.uv-cache/
+.uv-python/
+build/
+dist/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.csv
+*_annotated.png
+measurement_results.png
