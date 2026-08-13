@@ -20,7 +20,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='狗狗测量',
+    name='狗狗视觉测量',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

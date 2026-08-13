@@ -13,7 +13,7 @@ if not errorlevel 1 goto use_py
 where python >nul 2>nul
 if not errorlevel 1 goto use_python
 
-echo [狗狗测量] Python 3.11+ was not found.
+echo [狗狗视觉测量] Python 3.11+ was not found.
 echo Install Python from https://www.python.org/downloads/ and run this file again.
 pause
 exit /b 1
@@ -48,6 +48,6 @@ exit /b %errorlevel%
 
 :failed
 echo.
-echo [狗狗测量] Environment setup failed. Check the network connection and disk permissions.
+echo [狗狗视觉测量] Environment setup failed. Check the network connection and disk permissions.
 pause
 exit /b 1

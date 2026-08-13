@@ -61,7 +61,7 @@ from .vision import (
 )
 
 
-APP_TITLE = "狗狗测量"
+APP_TITLE = "狗狗视觉测量"
 
 CAMERA_RESOLUTIONS = (
     (3840, 2160),

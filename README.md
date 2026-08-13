@@ -1,10 +1,10 @@
-# 狗狗测量 / Dog Measure
+# 狗狗视觉测量 / Dog Vision Measure
 
 一款面向 UVC 摄像头和静态图片的开源二维视觉测量软件。粗略点击目标附近即可自动寻找圆、圆心、边缘和角点，减少人工选点造成的重复性误差。
 
 An open-source 2D visual measurement application for UVC cameras and still images. Click roughly near a target and let the software locate circles, centers, edges, and corners automatically, reducing operator-dependent measurement variation.
 
-![狗狗测量界面 / Dog Measure interface](docs/images/measurement-demo.png)
+![狗狗视觉测量界面 / Dog Vision Measure interface](docs/images/measurement-demo.png)
 
 **操作视频 / Operation Video:** [观看或下载 / Watch or download](../../releases/latest)
 

@@ -88,8 +88,8 @@ QToolTip { color: #f4f6f7; background: #181c1f; border: 1px solid #4d565d; paddi
 def main() -> int:
     QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
     app = QApplication(sys.argv)
-    app.setApplicationName("狗狗测量")
-    app.setApplicationDisplayName("狗狗测量")
+    app.setApplicationName("狗狗视觉测量")
+    app.setApplicationDisplayName("狗狗视觉测量")
     app.setOrganizationName("Codex")
     app.setWindowIcon(QIcon(str(_resource_path("assets/dog_measure.ico"))))
     app.setStyle("Fusion")

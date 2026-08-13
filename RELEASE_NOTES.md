@@ -1,8 +1,8 @@
-# 狗狗测量 v1.1.0 / Dog Measure v1.1.0
+# 狗狗视觉测量 v1.1.1 / Dog Vision Measure v1.1.1
 
-新增圆心距与画面多选功能。/ Adds center-distance measurement and canvas multi-selection.
+软件正式更名为“狗狗视觉测量”，并保留圆心距与画面多选功能。/ Renamed to Dog Vision Measure while retaining center-distance measurement and canvas multi-selection.
 
-**操作视频 / Operation Video:** `DogMeasure-v1.1.0-Operation-Video.mp4`
+**操作视频 / Operation Video:** `DogVisionMeasure-v1.1.1-Operation-Video.mp4`
 
 ## 主要功能 / Highlights
 
@@ -28,6 +28,6 @@
 
 ## Windows 免安装版 / Portable Build
 
-在项目页面右侧 **Releases** 下下载 `DogMeasure-v1.1.0-Windows-x64.exe`，Windows 系统无需安装，双击即可直接运行。由于程序未进行商业代码签名，Windows SmartScreen 可能显示提示。
+在项目页面右侧 **Releases** 下下载 `DogVisionMeasure-v1.1.1-Windows-x64.exe`，Windows 系统无需安装，双击即可直接运行。由于程序未进行商业代码签名，Windows SmartScreen 可能显示提示。
 
-Download `DogMeasure-v1.1.0-Windows-x64.exe` from **Releases** on the right side of the project page. It is portable and runs directly on Windows without installation. Windows SmartScreen may display a warning because this build is not commercially code-signed.
+Download `DogVisionMeasure-v1.1.1-Windows-x64.exe` from **Releases** on the right side of the project page. It is portable and runs directly on Windows without installation. Windows SmartScreen may display a warning because this build is not commercially code-signed.
