@@ -36,6 +36,8 @@ An open-source 2D visual measurement application for UVC cameras and still image
 
 Use the **Releases** section on the right side of the GitHub project page, or open the [Releases download page](../../releases), to download the latest Windows x64 EXE. It is portable: download it and double-click to run on Windows, with no installation or Python runtime required.
 
+`v1.1.2` 精简免安装版约 46 MB，保留图片测量、UVC 摄像头、自动识别和全部二维测量功能。The compact `v1.1.2` portable build is about 46 MB and retains image measurement, UVC camera capture, automatic detection, and the complete 2D toolset.
+
 > Windows SmartScreen may warn because the executable is not code-signed. Choose **More info / 更多信息** and verify the release source before running.
 
 ## 快速开始 / Quick Start
@@ -64,6 +66,10 @@ Windows and Python 3.11+ are required. Double-click `start.bat` to create the vi
 python -m pip install -r requirements.txt
 python main.py
 ```
+
+构建免安装 EXE 时，`build_exe.bat` 会自动使用解压到 `tools\upx-VERSION-win64` 的官方 [UPX](https://github.com/upx/upx/releases)，也可通过 `UPX_DIR` 指定目录。未找到 UPX 时仍会生成标准版，但文件更大。
+
+When building the portable EXE, `build_exe.bat` automatically uses official [UPX](https://github.com/upx/upx/releases) extracted under `tools\upx-VERSION-win64`, or a directory specified by `UPX_DIR`. A standard, larger build is produced when UPX is unavailable.
 
 ## 常用快捷键 / Shortcuts
 

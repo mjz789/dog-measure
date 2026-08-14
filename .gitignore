@@ -6,6 +6,10 @@ dist/
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.pyinstaller-cache/
+.headless-probe/
+tools/upx-*/
+tools/*.zip
 *.csv
 *_annotated.png
 measurement_results.png

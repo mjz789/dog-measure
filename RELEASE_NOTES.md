@@ -1,8 +1,8 @@
-# 狗狗视觉测量 v1.1.1 / Dog Vision Measure v1.1.1
+# 狗狗视觉测量 v1.1.2 / Dog Vision Measure v1.1.2
 
-软件正式更名为“狗狗视觉测量”，并保留圆心距与画面多选功能。/ Renamed to Dog Vision Measure while retaining center-distance measurement and canvas multi-selection.
+本次版本将 Windows 免安装 EXE 从约 102 MB 精简到约 46 MB，保留自动测量、UVC 摄像头和全部二维工具。/ This release reduces the portable Windows EXE from about 102 MB to about 46 MB while retaining automatic measurement, UVC camera capture, and the complete 2D toolset.
 
-**操作视频 / Operation Video:** `DogVisionMeasure-v1.1.1-Operation-Video.mp4`
+**操作视频 / Operation Video:** 请在项目 Releases 页面查看。/ See the project Releases page.
 
 ## 主要功能 / Highlights
 
@@ -15,6 +15,7 @@
 - 自动识别常见公制标尺，支持两点手动标定。
 - 自动吸附边缘和角点，提供完整二维测量工具。
 - UVC 摄像头实时测量与同名 PNG + CSV 一键导出。
+- 精确移除未使用的 Qt 可选模块和 OpenCV 视频文件解码组件，并使用 UPX 压缩原生库。
 
 - Automatically detects circles and reports diameter and center coordinates without manual center picking.
 - Measures the distance between two detected circle centers with one action.
@@ -25,9 +26,10 @@
 - Detects common metric rulers automatically, with two-point manual calibration as fallback.
 - Snaps to nearby edges and corners and provides a complete planar measurement toolset.
 - Supports live UVC measurement and one-click same-named PNG + CSV export.
+- Removes unused optional Qt modules and OpenCV video-file decoding payloads, then compresses native libraries with UPX.
 
 ## Windows 免安装版 / Portable Build
 
-在项目页面右侧 **Releases** 下下载 `DogVisionMeasure-v1.1.1-Windows-x64.exe`，Windows 系统无需安装，双击即可直接运行。由于程序未进行商业代码签名，Windows SmartScreen 可能显示提示。
+在项目页面右侧 **Releases** 下下载 `DogVisionMeasure-v1.1.2-Windows-x64.exe`，Windows 系统无需安装，双击即可直接运行。由于程序未进行商业代码签名并使用可执行文件压缩，Windows SmartScreen 或部分安全软件可能显示提示，请核对 SHA-256 后再运行。
 
-Download `DogVisionMeasure-v1.1.1-Windows-x64.exe` from **Releases** on the right side of the project page. It is portable and runs directly on Windows without installation. Windows SmartScreen may display a warning because this build is not commercially code-signed.
+Download `DogVisionMeasure-v1.1.2-Windows-x64.exe` from **Releases** on the right side of the project page. It is portable and runs directly on Windows without installation. Because it is unsigned and executable compression is enabled, Windows SmartScreen or some security products may warn; verify the SHA-256 before running.
