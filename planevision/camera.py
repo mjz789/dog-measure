@@ -12,14 +12,6 @@ from PySide6.QtCore import QObject, QThread, Signal, Slot
 
 def camera_device_names() -> list[str]:
     """Return present Windows camera names in SetupAPI enumeration order."""
-    try:
-        from PySide6.QtMultimedia import QMediaDevices
-
-        qt_names = [device.description().strip() for device in QMediaDevices.videoInputs()]
-        if qt_names:
-            return [name or f"摄像头 {index}" for index, name in enumerate(qt_names)]
-    except (ImportError, RuntimeError):
-        pass
     if sys.platform != "win32":
         return []
 
