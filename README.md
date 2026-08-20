@@ -36,7 +36,7 @@ An open-source 2D visual measurement application for UVC cameras and still image
 
 Use the **Releases** section on the right side of the GitHub project page, or open the [Releases download page](../../releases), to download the latest Windows x64 EXE. It is portable: download it and double-click to run on Windows, with no installation or Python runtime required.
 
-`v1.1.2` 精简免安装版约 46 MB，保留图片测量、UVC 摄像头、自动识别和全部二维测量功能。The compact `v1.1.2` portable build is about 46 MB and retains image measurement, UVC camera capture, automatic detection, and the complete 2D toolset.
+`v1.1.3` 精简免安装版约 46 MB，保留图片测量、UVC 摄像头、自动识别和全部二维测量功能；标定及测量控制点使用细红色十字，拖动时隐藏鼠标箭头，便于精确对准。The compact `v1.1.3` portable build is about 46 MB and retains image measurement, UVC camera capture, automatic detection, and the complete 2D toolset; calibration and measurement handles use thin red crosshairs, with the pointer hidden while dragging for precise alignment.
 
 > Windows SmartScreen may warn because the executable is not code-signed. Choose **More info / 更多信息** and verify the release source before running.
 
