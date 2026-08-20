@@ -201,8 +201,15 @@ class ImageCanvas(QWidget):
             return radius
         return radius * rect.width() / (self.image_size or (self._qimage.width(), 1))[0]
 
-    def _draw_cross(self, painter: QPainter, point: QPointF, color: QColor, size: float = 7.0) -> None:
-        painter.setPen(QPen(color, 1.5))
+    def _draw_cross(
+        self,
+        painter: QPainter,
+        point: QPointF,
+        color: QColor,
+        size: float = 7.0,
+        width: float = 1.5,
+    ) -> None:
+        painter.setPen(QPen(color, width))
         painter.drawLine(QPointF(point.x() - size, point.y()), QPointF(point.x() + size, point.y()))
         painter.drawLine(QPointF(point.x(), point.y() - size), QPointF(point.x(), point.y() + size))
 
@@ -480,20 +487,14 @@ class ImageCanvas(QWidget):
             end = self.image_to_widget(self.calibration.end)
             painter.setPen(QPen(ACCENT_LIGHT, 2, Qt.PenStyle.DashLine))
             painter.drawLine(start, end)
-            self._draw_cross(painter, start, ACCENT_LIGHT)
-            self._draw_cross(painter, end, ACCENT_LIGHT)
+            self._draw_cross(painter, start, PRESELECT_COLOR, 8, 1.0)
+            self._draw_cross(painter, end, PRESELECT_COLOR, 8, 1.0)
             self._draw_label(
                 painter,
                 (start + end) / 2 + QPointF(0, -18),
                 f"{self.calibration.reference_mm:.3f} mm",
                 ACCENT_LIGHT,
             )
-            if self.tool == Tool.SELECT:
-                painter.setPen(QPen(QColor("#20252a"), 1.5))
-                painter.setBrush(SELECTED_COLOR)
-                painter.drawEllipse(start, 6.5, 6.5)
-                painter.drawEllipse(end, 6.5, 6.5)
-                painter.setBrush(Qt.BrushStyle.NoBrush)
             micron_centers: list[QPointF] = []
             for center_px, radius_px, _ in self.calibration.micron_circles:
                 center = self.image_to_widget(center_px)
@@ -621,7 +622,7 @@ class ImageCanvas(QWidget):
                 calibration_handle = self._calibration_handle_hit(image_point)
                 if calibration_handle is not None:
                     self._drag_calibration_handle = calibration_handle
-                    self.setCursor(Qt.CursorShape.SizeAllCursor)
+                    self.setCursor(Qt.CursorShape.BlankCursor)
                     self.update()
                     return
                 handle = self._edit_handle_hit(image_point)
@@ -630,7 +631,7 @@ class ImageCanvas(QWidget):
                     self.selected_id = self._drag_measurement.id
                     self.selected_ids = {self._drag_measurement.id}
                     self.measurementSelected.emit(self._drag_measurement)
-                    self.setCursor(Qt.CursorShape.SizeAllCursor)
+                    self.setCursor(Qt.CursorShape.BlankCursor)
                     self.update()
                     return
             selected = self._measurement_hit(image_point)
@@ -808,12 +809,9 @@ class ImageCanvas(QWidget):
         return None
 
     def _paint_edit_handles(self, painter: QPainter, item: Measurement) -> None:
-        painter.setPen(QPen(QColor("#20252a"), 1.5))
-        painter.setBrush(SELECTED_COLOR)
         for _, _, image_point in self._measurement_handles(item):
             point = self.image_to_widget(image_point)
-            painter.drawEllipse(point, 5.5, 5.5)
-        painter.setBrush(Qt.BrushStyle.NoBrush)
+            self._draw_cross(painter, point, PRESELECT_COLOR, 7, 1.0)
 
     def leaveEvent(self, event) -> None:  # type: ignore[no-untyped-def]
         self.hover_point = None
