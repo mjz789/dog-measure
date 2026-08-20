@@ -312,9 +312,11 @@ def test_mouse_drag_length_handle_updates_geometry() -> None:
     target_image = (300.0, 240.0)
     target = window.canvas.image_to_widget(target_image).toPoint()
     QTest.mousePress(window.canvas, Qt.MouseButton.LeftButton, pos=start)
+    assert window.canvas.cursor().shape() == Qt.CursorShape.BlankCursor
     QTest.mouseMove(window.canvas, target, delay=10)
     QTest.mouseRelease(window.canvas, Qt.MouseButton.LeftButton, pos=target)
     QApplication.processEvents()
+    assert window.canvas.cursor().shape() == Qt.CursorShape.ArrowCursor
     assert math.isclose(measurement.points[1][0], target_image[0], abs_tol=3.0)
     assert math.isclose(measurement.points[1][1], target_image[1], abs_tol=3.0)
     assert measurement.value > 240.0
@@ -437,10 +439,12 @@ def test_calibration_endpoints_can_be_dragged_and_recalculate_measurements() -> 
     start = window.canvas.image_to_widget(calibration.end).toPoint()
     target = window.canvas.image_to_widget((400.0, 100.0)).toPoint()
     QTest.mousePress(window.canvas, Qt.MouseButton.LeftButton, pos=start)
+    assert window.canvas.cursor().shape() == Qt.CursorShape.BlankCursor
     QTest.mouseMove(window.canvas, target, delay=10)
     QTest.mouseRelease(window.canvas, Qt.MouseButton.LeftButton, pos=target)
     QApplication.processEvents()
 
+    assert window.canvas.cursor().shape() == Qt.CursorShape.ArrowCursor
     assert math.isclose(calibration.end[0], 400.0, abs_tol=3.0)
     assert math.isclose(calibration.pixel_length, 300.0, abs_tol=3.0)
     assert math.isclose(calibration.mm_per_pixel, calibration.reference_mm / calibration.pixel_length)
